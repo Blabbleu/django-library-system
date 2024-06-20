@@ -1,0 +1,52 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<fluent-card class="mt-4">
+    <h1>Book List</h1>
+    <fluent-text-field id="book-search" class="form-control mb-3" placeholder="Search for books..."></fluent-text-field>
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Thumbnail</th>
+                <th>ISBN</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Categories</th>
+                <th>Publication Year</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="book-table-body">
+            <!-- Books will be populated here by JavaScript -->
+        </tbody>
+    </table>
+</fluent-card>
+
+<script>
+    document.getElementById('book-search').addEventListener('input', function() {
+        let query = this.value;
+        fetch(`/books/query/?q=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                let tableBody = document.getElementById('book-table-body');
+                tableBody.innerHTML = '';
+                data.forEach(book => {
+                    let status = book.borrowed ? 'Borrowed' : 'Available';
+                    let thumbnail = book.thumbnail ? `<img src="${book.thumbnail}" alt="Thumbnail" class="img-thumbnail" style="width: 100px; height: auto;">` : '';
+                    let row = `<tr>
+                                <td>${thumbnail}</td>
+                                <td>${book.isbn}</td>
+                                <td>${book.title}</td>
+                                <td>${book.author}</td>
+                                <td>${book.categories}</td>
+                                <td>${book.publication_year}</td>
+                                <td>${status}</td>
+                                <td><a href="/books/${book.id}/details/" class="fluent-button">Details</a></td>
+                               </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            });
+    });
+</script>
+{% endblock %}

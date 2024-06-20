@@ -1,0 +1,14 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<div class="container">
+  <fluent-card>
+    <h1>Register New Reader</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <fluent-button appearance="accent" type="submit">Register Reader</fluent-button>
+    </form>
+  </fluent-card>
+</div>
+{% endblock %}

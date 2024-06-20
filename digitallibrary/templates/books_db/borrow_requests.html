@@ -1,0 +1,98 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <fluent-card class="mt-4">
+    <h1>Pending Borrow Requests</h1>
+    <table class="table table-bordered table-hover">
+      <thead class="thead-dark">
+        <tr>
+          <th>STT</th>
+          <th>Book ID</th>
+          <th>Title</th>
+          <th>Borrower</th>
+          <th>Borrow Date</th>
+          <th>Due Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for borrow in borrows_pending %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ borrow.book.id }}</td>
+          <td>{{ borrow.book.title }}</td>
+          <td>{{ borrow.borrower.user.username }}</td>
+          <td>{{ borrow.borrow_date }}</td>
+          <td>{{ borrow.due_date }}</td>
+          <td>{{ borrow.get_status_display }}</td>
+          <td>
+            <a href="{% url 'confirm_borrow_request' borrow.id %}" class="fluent-button" appearance="accent">Confirm</a>
+            <a href="{% url 'cancel_borrow_request' borrow.id %}" class="fluent-button" appearance="neutral">Cancel</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </fluent-card>
+
+  <fluent-card class="mt-4">
+    <h2>Confirmed Borrow Requests</h2>
+    <table class="table table-bordered table-hover">
+      <thead class="thead-dark">
+        <tr>
+          <th>STT</th>
+          <th>Book ID</th>
+          <th>Title</th>
+          <th>Borrower</th>
+          <th>Borrow Date</th>
+          <th>Due Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for borrow in borrows_confirmed %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ borrow.book.id }}</td>
+          <td>{{ borrow.book.title }}</td>
+          <td>{{ borrow.borrower.user.username }}</td>
+          <td>{{ borrow.borrow_date }}</td>
+          <td>{{ borrow.due_date }}</td>
+          <td>{{ borrow.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </fluent-card>
+
+  <fluent-card class="mt-4">
+    <h2>Cancelled Borrow Requests</h2>
+    <table class="table table-bordered table-hover">
+      <thead class="thead-dark">
+        <tr>
+          <th>STT</th>
+          <th>Book ID</th>
+          <th>Title</th>
+          <th>Borrower</th>
+          <th>Borrow Date</th>
+          <th>Due Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for borrow in borrows_cancelled %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ borrow.book.id }}</td>
+          <td>{{ borrow.book.title }}</td>
+          <td>{{ borrow.borrower.user.username }}</td>
+          <td>{{ borrow.borrow_date }}</td>
+          <td>{{ borrow.due_date }}</td>
+          <td>{{ borrow.get_status_display }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </fluent-card>
+{% endblock %}

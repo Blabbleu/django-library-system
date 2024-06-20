@@ -1,0 +1,33 @@
+{% extends "base_generic.html" %}
+
+
+{% block content %}
+  <h1>Collect Fine from {{ reader.user.username }}</h1>
+  {% if fine %}
+    <h2>Fine Collection Receipt</h2>
+    <p>Reader Name: {{ fine.reader.user.username }}</p>
+    <p>Collection Date: {{ fine.collection_date }}</p>
+    <p>Amount Collected: {{ fine.return_amount }}</p>
+    <p>Collector: {{ fine.collector.username }}</p>
+    <p>Previous Dues: {{ reader.owed_money }}</p>
+    <p>Remaining Dues: {{ fine.previous_dues }}</p>
+  {% else %}
+    <form method="post">
+      {% csrf_token %}
+      <p>Amount Owed: {{ reader.owed_money }}</p>
+      {{ form.as_p }}
+      <button type="submit">Collect Fine</button>
+    </form>
+
+    {% if form.non_field_errors %}
+      <div class="error">
+        <ul>
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  {% endif %}
+{% endblock %}
+

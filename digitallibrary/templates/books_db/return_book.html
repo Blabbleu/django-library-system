@@ -1,0 +1,58 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Return Book for {{ reader.user.username }}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Return Book</button>
+  </form>
+
+  {% if form.errors %}
+    <div class="errors">
+      <ul>
+        {% for field, errors in form.errors.items %}
+          <li>{{ field }}: {{ errors|join:", " }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {% if return_instance %}
+    <h1>Book Return Receipt</h1>
+    <p>Reader Name: {{ reader.user.username }}</p>
+    <p>Return Date: {{ return_instance.return_date }}</p>
+    <p>Current Fine: {{ return_instance.fine_amount }}</p>
+    <p>Previous Dues: {{ reader.owed_money }}</p>
+    <p>Total Dues: {{ return_instance.total_dues }}</p>
+
+    <table border="1" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color: black; color: white;">
+          <th>#</th>
+          <th>Book ID</th>
+          <th>Title</th>
+          <th>Borrow Date</th>
+          <th>Days Borrowed</th>
+          {% if return_instance.fine_amount %}
+          <th>Days Overdued</th>
+          {% endif %}
+          <th>Fine</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>{{ return_instance.borrow.book.id }}</td>
+          <td>{{ return_instance.borrow.book.title }}</td>
+          <td>{{ return_instance.borrow.borrow_date }}</td>
+          <td>{{ return_instance.days_borrowed }}</td>
+          {% if return_instance.fine_amount %}
+          <td>{{ return_instance.days_overdued }}</td>
+          {% endif %}
+          <td>{{ return_instance.fine_amount }}</td>
+        </tr>
+      </tbody>
+    </table>
+  {% endif %}
+{% endblock %}

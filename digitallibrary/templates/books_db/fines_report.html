@@ -1,0 +1,25 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>Readers Owing Fines Report</h1>
+<p>Date: {{ date }}</p>
+<table border="1" style="width: 100%; border-collapse: collapse;">
+    <thead>
+        <tr style="background-color: black; color: white;">
+            <th>#</th>
+            <th>Reader Name</th>
+            <th>Amount Owed</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reader in readers_with_fines %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ reader.user.username }}</td>
+            <td>{{ reader.owed_money }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<p>Total Amount Owed: {{ total_fines }}</p>
+{% endblock %}

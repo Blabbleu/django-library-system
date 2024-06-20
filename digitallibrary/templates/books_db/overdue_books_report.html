@@ -1,0 +1,26 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>Overdue Books Report</h1>
+<p>Date: {{ date }}</p>
+<table border="1" style="width: 100%; border-collapse: collapse;">
+    <thead>
+        <tr style="background-color: black; color: white;">
+            <th>#</th>
+            <th>Book Title</th>
+            <th>Borrow Date</th>
+            <th>Days Overdue</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in overdue_books %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ book.book_title }}</td>
+            <td>{{ book.borrow_date }}</td>
+            <td>{{ book.days_overdue }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "email_base_generic.html" %}
+
+{% block title %}Notification from Library{% endblock %}
+
+{% block header %}New Notification{% endblock %}
+
+{% block content %}
+<p>Dear {{ user.username }},</p>
+<p>{{ message }}</p>
+{% endblock %}

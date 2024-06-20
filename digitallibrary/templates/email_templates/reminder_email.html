@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Return Reminder</title>
+</head>
+<body>
+    <p>Dear {{ reader.user.username }},</p>
+    <p>This is a reminder that you need to return the book <strong>{{ book.title }}</strong> by {{ due_date }}.</p>
+    <p>Thank you!</p>
+</body>
+</html>

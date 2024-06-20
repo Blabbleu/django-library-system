@@ -1,0 +1,44 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h1>Search results for "{{ query }}"</h1>
+    <p>Found {{ books|length }} books with "{{ query }}"</p>
+
+    <div class="filter-options mb-4">
+      <button class="btn btn-outline-secondary">Edition</button>
+      <button class="btn btn-outline-secondary">Year</button>
+      <button class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown">Language</button>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" href="#">English</a>
+        <a class="dropdown-item" href="#">French</a>
+        <!-- Add more languages as needed -->
+      </div>
+      <button class="btn btn-primary ml-2">Apply</button>
+    </div>
+
+    <div class="search-results">
+      {% for book in books %}
+      <div class="book-card mb-4">
+        <div class="row">
+          <div class="col-md-3">
+            {% if book.thumbnail %}
+              <img src="{{ book.thumbnail }}" alt="Thumbnail" class="img-fluid book-thumbnail">
+            {% endif %}
+          </div>
+          <div class="col-md-9">
+            <h3>{{ book.title }}</h3>
+            <p><strong>Authors:</strong> {{ book.author }}</p>
+            <p><strong>ISBN13:</strong> {{ book.isbn }}</p>
+            <p><strong>Edition:</strong> {{ book.edition }}</p>
+            <p><strong>Published:</strong> {{ book.publication_year }}</p>
+            <p><strong>Language:</strong> {{ book.language }}</p>
+            <a href="{% url 'book_detail' book.id %}" class="btn btn-primary">View</a>
+          </div>
+        </div>
+      </div>
+      <hr>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

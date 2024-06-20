@@ -1,0 +1,91 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<fluent-card class="mt-4">
+  <h1>Calendar View</h1>
+</fluent-card>
+
+<fluent-card class="mt-4">
+  <h2>Borrow Requests for Today</h2>
+  <table class="table table-bordered table-hover">
+    <thead class="thead-dark">
+      <tr>
+        <th>Book ID</th>
+        <th>Title</th>
+        <th>Borrower</th>
+        <th>Borrow Date</th>
+        <th>Due Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for borrow in day_borrows %}
+      <tr>
+        <td>{{ borrow.book.id }}</td>
+        <td>{{ borrow.book.title }}</td>
+        <td>{{ borrow.borrower.user.username }}</td>
+        <td>{{ borrow.borrow_date }}</td>
+        <td>{{ borrow.due_date }}</td>
+        <td>{{ borrow.get_status_display }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</fluent-card>
+
+<fluent-card class="mt-4">
+  <h2>Borrow Requests for This Week</h2>
+  <table class="table table-bordered table-hover">
+    <thead class="thead-dark">
+      <tr>
+        <th>Book ID</th>
+        <th>Title</th>
+        <th>Borrower</th>
+        <th>Borrow Date</th>
+        <th>Due Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for borrow in week_borrows %}
+      <tr>
+        <td>{{ borrow.book.id }}</td>
+        <td>{{ borrow.book.title }}</td>
+        <td>{{ borrow.borrower.user.username }}</td>
+        <td>{{ borrow.borrow_date }}</td>
+        <td>{{ borrow.due_date }}</td>
+        <td>{{ borrow.get_status_display }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</fluent-card>
+
+<fluent-card class="mt-4">
+  <h2>Borrow Requests for This Month</h2>
+  <table class="table table-bordered table-hover">
+    <thead class="thead-dark">
+      <tr>
+        <th>Book ID</th>
+        <th>Title</th>
+        <th>Borrower</th>
+        <th>Borrow Date</th>
+        <th>Due Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for borrow in month_borrows %}
+      <tr>
+        <td>{{ borrow.book.id }}</td>
+        <td>{{ borrow.book.title }}</td>
+        <td>{{ borrow.borrower.user.username }}</td>
+        <td>{{ borrow.borrow_date }}</td>
+        <td>{{ borrow.due_date }}</td>
+        <td>{{ borrow.get_status_display }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</fluent-card>
+{% endblock %}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Digital Library{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/@fluentui/web-components@1.0.0/dist/fluent-ui.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
+    {% block extra_head %}
+    {% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <button id="menu-button" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'index' %}">{% if user.is_staff %}Library Management System{% else %}Minh Tam Library{% endif %}</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <span class="navbar-text">Welcome, {{ user.username }}</span>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'notification_list' %}" class="nav-link notification-icon">Notifications</a>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-light">Logout</button>
+                            </form>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'account_view' %}">
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 30px; height: 30px;">
+                                {% else %}
+                                    <img src="{% static 'images/default_profile_picture.png' %}" alt="Default Profile Picture" class="img-fluid rounded-circle" style="width: 30px; height: 30px;">
+                                {% endif %}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="{% url 'staff_login' %}" class="btn btn-outline-light">Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+                <form class="form-inline my-2 my-lg-0 ml-auto" method="get" action="{% url 'search_books' %}">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search for books..." aria-label="Search" name="q">
+                    <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-content">
+            <!-- Sidebar content here -->
+        </div>
+    </div>
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+    <script>
+        document.getElementById('menu-button').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+    </script>
+    <footer class="footer bg-primary text-white text-center py-3">
+        <p>&copy; 2024 My Library</p>
+    </footer>
+</body>
+</html>

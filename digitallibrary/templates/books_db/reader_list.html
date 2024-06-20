@@ -1,0 +1,46 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+  <fluent-card>
+    <h1>Reader List</h1>
+    <fluent-text-field id="reader-search" placeholder="Search for readers..."></fluent-text-field>
+    <table border="1" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color: black; color: white;">
+          <th>ID</th>
+          <th>Username</th>
+          <th>Reader Type</th>
+          <th>Owed Money</th>
+          <th>Credit Score</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="reader-table-body">
+        <!-- Readers will be populated here by JavaScript -->
+      </tbody>
+    </table>
+  </fluent-card>
+  
+  <script>
+    document.getElementById('reader-search').addEventListener('input', function() {
+      let query = this.value;
+      fetch(`/readers/query/?q=${query}`)
+        .then(response => response.json())
+        .then(data => {
+          let tableBody = document.getElementById('reader-table-body');
+          tableBody.innerHTML = '';
+          data.forEach(reader => {
+            let row = `<tr>
+                        <td>${reader.id}</td>
+                        <td>${reader.user__username}</td>
+                        <td>${reader.reader_type}</td>
+                        <td>${reader.owed_money}</td>
+                        <td>${reader.credit_score}</td>
+                        <td><button class="fluent-button" onclick="location.href='{% url 'reader_management' 0 %}'.replace(0, ${reader.id})">Manage</button></td>
+                       </tr>`;
+            tableBody.innerHTML += row;
+          });
+        });
+    });
+  </script>
+{% endblock %}
