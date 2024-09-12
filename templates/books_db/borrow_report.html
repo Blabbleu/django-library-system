@@ -1,0 +1,86 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<fluent-card class="mt-4 p-4">
+    <h1>Borrow Reports for {{ month }}</h1>
+
+    <div class="mb-4">
+        <h2>Daily Borrow Report</h2>
+        <table class="table table-bordered table-hover mt-4">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Genre</th>
+                    <th>Borrow Count</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in daily_borrow_stats %}
+                <tr>
+                    <td>{{ stat.date }}</td>
+                    <td>{{ stat.book__genre }}</td>
+                    <td>{{ stat.borrow_count }}</td>
+                    <td>{{ stat.percentage|floatformat:2 }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mb-4">
+        <h2>Weekly Borrow Report</h2>
+        <table class="table table-bordered table-hover mt-4">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Week</th>
+                    <th>Genre</th>
+                    <th>Borrow Count</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in weekly_borrow_stats %}
+                <tr>
+                    <td>{{ stat.week }}</td>
+                    <td>{{ stat.book__genre }}</td>
+                    <td>{{ stat.borrow_count }}</td>
+                    <td>{{ stat.percentage|floatformat:2 }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mb-4">
+        <h2>Monthly Borrow Report</h2>
+        <p>Total Borrows: {{ total_borrows }}</p>
+        <table class="table table-bordered table-hover mt-4">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Genre</th>
+                    <th>Borrow Count</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in borrow_stats %}
+                <tr>
+                    <td>{{ stat.book__genre }}</td>
+                    <td>{{ stat.borrow_count }}</td>
+                    <td>{{ stat.percentage|floatformat:2 }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</fluent-card>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('month-picker').addEventListener('change', function() {
+            window.location.href = '?month=' + this.value;
+        });
+    });
+</script>
+{% endblock %}

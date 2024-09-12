@@ -1,0 +1,40 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% load compress %}
+{% block title %}Query Reader{% endblock %}
+
+{% block content %}
+{% compress css %}
+  <style>
+    .btn-primary, .btn-secondary {
+      margin-top: 10px;
+    }
+  </style>
+{% endcompress %}
+  <h2>Query Reader</h2>
+
+  {% if user.is_staff %}
+    <fluent-card class="mt-4 p-4">
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <fluent-button appearance="accent" type="submit">Search</fluent-button>
+      </form>
+    </fluent-card>
+  {% else %}
+    {% if form.initial.reader_id %}
+      <p>Reader ID: {{ form.initial.reader_id }}</p>
+      <fluent-card class="mt-4 p-4">
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <fluent-button appearance="accent" type="submit">Proceed</fluent-button>
+        </form>
+      </fluent-card>
+    {% else %}
+      <fluent-card class="mt-4 p-4">
+        <p>No reader profile found for this user.</p>
+      </fluent-card>
+    {% endif %}
+  {% endif %}
+{% endblock %}

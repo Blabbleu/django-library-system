@@ -1,0 +1,132 @@
+{% extends "base_generic.html" %}
+{% load compress %}
+
+{% block content %}
+{% compress css %}
+<style>
+    .table th, .table td {
+        vertical-align: middle;
+    }
+    .table th {
+        background-color: #343a40;
+        color: white;
+    }
+    .table-responsive {
+        margin-top: 20px;
+    }
+</style>
+{% endcompress %}
+
+<h1>Borrow Books</h1>
+
+<fluent-card class="mt-4 p-4">
+    <fluent-text-field id="book-search" class="form-control mb-3" placeholder="Search for books..."></fluent-text-field>
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Thumbnail</th>
+                <th>ISBN</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Categories</th>
+                <th>Publication Year</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="book-table-body">
+            {% for book in books %}
+            <tr>
+                <td>
+                    {% if book.thumbnail %}
+                    <img src="{{ book.thumbnail }}" alt="Thumbnail" class="img-thumbnail" style="width: 100px; height: auto;">
+                    {% endif %}
+                </td>
+                <td>{{ book.isbn }}</td>
+                <td>{{ book.title }}</td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.categories }}</td>
+                <td>{{ book.publication_year }}</td>
+                <td>
+                    {% if book.id in requested_books %}
+                    <button class="fluent-button" disabled>Requested</button>
+                    {% else %}
+                    <form method="post" class="request-form" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="book" value="{{ book.id }}">
+                        {{ form.request_date }}
+                        <input type="hidden" name="borrower" value="{{ request.user.reader_profile.id }}">
+                        <button type="submit" class="fluent-button">Request Borrow</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</fluent-card>
+
+{% compress js %}
+<script>
+document.getElementById('book-search').addEventListener('input', function() {
+  let query = this.value;
+  fetch(`/readers/query_books/?q=${query}`)
+    .then(response => response.json())
+    .then(data => {
+      let tableBody = document.getElementById('book-table-body');
+      tableBody.innerHTML = '';
+      data.forEach(book => {
+        let thumbnail = book.thumbnail ? `<img src="${book.thumbnail}" alt="Thumbnail" class="img-thumbnail" style="width: 100px; height: auto;">` : '';
+        let actionButton = book.requested ?
+          `<button class="fluent-button" disabled>Requested</button>` :
+          `<form method="post" class="request-form" style="display: inline;">
+            <input type="hidden" name="book" value="${book.id}">
+            <input type="hidden" name="borrower" value="{{ request.user.reader_profile.id }}">
+            <button type="submit" class="fluent-button">Request Borrow</button>
+          </form>`;
+        let row = `<tr>
+                    <td>${thumbnail}</td>
+                    <td>${book.isbn}</td>
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.categories}</td>
+                    <td>${book.publication_year}</td>
+                    <td>${actionButton}</td>
+                   </tr>`;
+        tableBody.innerHTML += row;
+      });
+
+      // Attach event listener to the new forms
+      attachRequestFormSubmit();
+    })
+    .catch(error => console.error('Error fetching books:', error));
+});
+
+function attachRequestFormSubmit() {
+  document.querySelectorAll('.request-form').forEach(form => {
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      let formData = new FormData(this);
+      fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          this.querySelector('button').innerText = 'Requested';
+          this.querySelector('button').disabled = true;
+        }
+      })
+      .catch(error => console.error('Error submitting request:', error));
+    });
+  });
+}
+
+// Attach event listener on page load
+attachRequestFormSubmit();
+</script>
+{% endcompress %}
+{% endblock %}

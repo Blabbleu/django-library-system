@@ -1,0 +1,59 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% load compress %}
+{% block title %}Removal Report{% endblock %}
+{% block content %}
+{% compress css %}
+<style>
+    .table th, .table td {
+        vertical-align: middle;
+    }
+    .table th {
+        background-color: #343a40;
+        color: white;
+    }
+</style>
+{% endcompress %}
+
+<fluent-card class="mt-4 p-4">
+    <h1 class="mb-4">Report Book Removal</h1>
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-danger">Report Removal</button>
+    </form>
+    {% if error %}
+        <p style="color: red;">Error: {{ error }}</p>
+    {% endif %}
+</fluent-card>
+
+<fluent-card class="mt-4 p-4">
+    <h2 class="mb-4">Removal Reports</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Book ID</th>
+                    <th>Title</th>
+                    <th>Reason</th>
+                    <th>Remover</th>
+                    <th>Removal Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in removal_reports %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ report.book.id }}</td>
+                    <td>{{ report.book.title }}</td>
+                    <td>{{ report.get_reason_display }}</td>
+                    <td>{{ report.remover.username }}</td>
+                    <td>{{ report.removal_date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</fluent-card>
+{% endblock %}

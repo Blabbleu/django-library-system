@@ -1,0 +1,68 @@
+{% extends "base_generic.html" %}
+{% load compress %}
+
+{% block content %}
+{% compress css %}
+<style>
+    .table th, .table td {
+        vertical-align: middle;
+    }
+    .table th {
+        background-color: #343a40;
+        color: white;
+    }
+    .table-responsive {
+        margin-top: 20px;
+    }
+</style>
+{% endcompress %}
+
+<h1>Borrow Books</h1>
+
+<fluent-card class="mt-4 p-4">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <fluent-button appearance="accent" type="submit">Borrow</fluent-button>
+    </form>
+</fluent-card>
+
+<fluent-card class="mt-4 p-4">
+    <h2>Current Borrows</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>STT</th>
+                    <th>Book ID</th>
+                    <th>Title</th>
+                    <th>Borrower</th>
+                    <th>Borrow Date</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for borrow in borrows %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ borrow.book.id }}</td>
+                    <td>{{ borrow.book.title }}</td>
+                    <td>{{ borrow.borrower.user.username }}</td>
+                    <td>{{ borrow.borrow_date }}</td>
+                    <td>{{ borrow.due_date }}</td>
+                    <td>{{ borrow.get_status_display }}</td>
+                    <td>
+                        {% if borrow.status == 'PENDING' %}
+                            <a href="{% url 'confirm_borrow_request' borrow.id %}" class="fluent-button" appearance="accent">Confirm</a>
+                            <a href="{% url 'cancel_borrow_request' borrow.id %}" class="fluent-button" appearance="neutral">Cancel</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</fluent-card>
+{% endblock %}

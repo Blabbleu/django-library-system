@@ -1,0 +1,27 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<fluent-card class="mt-4 p-4">
+    <h1>Readers Owing Fines Report</h1>
+    <p>Date: {{ date }}</p>
+    <table class="table table-bordered table-hover mt-4">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>Reader Name</th>
+                <th>Amount Owed</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reader in readers_with_fines %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ reader.user.username }}</td>
+                <td>{{ reader.owed_money }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Total Amount Owed: {{ total_fines }}</p>
+</fluent-card>
+{% endblock %}

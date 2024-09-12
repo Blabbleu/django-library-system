@@ -1,0 +1,80 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <fluent-card class="mt-4 p-4">
+    <h1>Manage Account: {{ reader.user.username }}</h1>
+
+    <h2>Active Borrows</h2>
+    <table class="table table-bordered table-hover">
+      <thead class="thead-dark">
+        <tr>
+          <th>Book ID</th>
+          <th>Title</th>
+          <th>Borrow Date</th>
+          <th>Due Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for borrow in active_borrows %}
+        <tr>
+          <td>{{ borrow.book.id }}</td>
+          <td>{{ borrow.book.title }}</td>
+          <td>{{ borrow.borrow_date }}</td>
+          <td>{{ borrow.due_date }}</td>
+          <td>
+            <form method="post" style="display: inline;">
+              {% csrf_token %}
+              <input type="hidden" name="borrow_id" value="{{ borrow.id }}">
+              <fluent-button appearance="accent" type="submit" name="return_book">Return Book</fluent-button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h2>Borrow History</h2>
+    <table class="table table-bordered table-hover">
+      <thead class="thead-dark">
+        <tr>
+          <th>Book ID</th>
+          <th>Title</th>
+          <th>Borrow Date</th>
+          <th>Return Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for borrow in past_borrows %}
+        <tr>
+          <td>{{ borrow.book.id }}</td>
+          <td>{{ borrow.book.title }}</td>
+          <td>{{ borrow.borrow_date }}</td>
+          <td>{{ borrow.return_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h2>Fine Payment</h2>
+    <p>Total Fine: {{ reader.owed_money }}</p>
+    <form method="post">
+      {% csrf_token %}
+      {{ fine_form.as_p }}
+      <input type="hidden" name="collect_fine" value="true">
+      <fluent-button appearance="accent" type="submit">Collect Fine</fluent-button>
+    </form>
+
+    {% if fine_collection %}
+    <fluent-card class="mt-4 p-4">
+      <h3>Fine collected successfully!</h3>
+      <p>Amount: {{ fine_collection.fine_amount }}</p>
+      <p>Date: {{ fine_collection.collection_date }}</p>
+    </fluent-card>
+    {% endif %}
+
+    <h2>Credit Score: {{ reader.credit_score }} CRs</h2>
+
+    <fluent-button appearance="neutral" onclick="location.href='{% url 'reader_list' %}';">Back to Reader List</fluent-button>
+  </fluent-card>
+{% endblock %}

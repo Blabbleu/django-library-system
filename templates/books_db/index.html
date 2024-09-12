@@ -1,0 +1,243 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% load compress %}
+
+
+{% block title %}
+Digital Library
+{% endblock %}
+
+
+{% block content %}
+{% compress css %}
+<style>
+    .nav-link:hover {
+        color: var(--steel-blue);
+        text-decoration: none;
+    }
+
+    .index-book-card {
+        position: relative;
+        background: var(--light-gray) !important;
+        border-radius: 10px;
+        padding: 16px;
+        box-shadow: 0 1.6px 3.6px rgba(0, 0, 0, 0.132), 0 0.3px 0.9px rgba(0, 0, 0, 0.108);
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .heart-icon {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        font-size: 1.5em;
+        color: var(--steel-blue); /* Red color for the heart icon */
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .heart-icon:hover {
+        color: var(--steel-blue); /* Darker red on hover */
+    }
+
+    .index-book-card img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+</style>
+{% endcompress %}
+<div class="container mt-4">
+    <h1>Welcome to the Digital Library System</h1>
+
+
+    {% if user.is_staff %}
+        {% if user_department == 'LI' %}
+            <h2>Librarian Management</h2>
+            <div class="sidebar-card" style="background-color:var(--medium-blue)">
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><a class="nav-link" href="{% url 'reg_staff' %}"><i class="fas fa-user-plus"></i> Register a New Staff</a></li>
+                        <li><a class="nav-link" href="{% url 'reg_reader' %}"><i class="fas fa-user-plus"></i> Register a New Reader</a></li>
+                        <li><a class="nav-link" href="{% url 'query_reader_fine' %}"><i class="fas fa-dollar-sign"></i> Fine Payment</a></li>
+                        <li><a class="nav-link" href="{% url 'reader_list' %}"><i class="fas fa-book-reader"></i> Reader Management</a></li>
+                    </ul>
+                </div>
+            </div>
+        {% elif user_department == 'IT' %}
+            <h2>IT Department Management</h2>
+            <div class="sidebar-card" style="background-color:var(--medium-blue)">
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><a class="nav-link" href="{% url 'new_book' %}"><i class="fas fa-book"></i> Register a New Book</a></li>
+                        <li><a class="nav-link" href="{% url 'borrow_requests' %}"><i class="fas fa-tasks"></i> Manage Borrow Requests</a></li>
+                        <li><a class="nav-link" href="{% url 'reader_list' %}"><i class="fas fa-book-reader"></i> Reader Management</a></li>
+                    </ul>
+                </div>
+            </div>
+        {% elif user_department == 'WK' %}
+            <h2>Warehouse Keeper Management</h2>
+            <div class="sidebar-card" style="background-color:var(--medium-blue)">
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><a class="nav-link" href="{% url 'query_reader_return' %}"><i class="fas fa-undo-alt"></i> Return Books</a></li>
+                        <li><a class="nav-link" href="{% url 'removal_report' %}"><i class="fas fa-trash-alt"></i> Remove a Book from Inventory</a></li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+
+        <h2>Book Management</h2>
+        <div class="sidebar-card" style="background-color:var(--medium-blue)">
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><a class="nav-link" href="{% url 'new_book' %}"><i class="fas fa-book"></i> Register a New Book</a></li>
+                    <li><a class="nav-link" href="{% url 'borrow_book' %}"><i class="fas fa-book-reader"></i> Borrow Books</a></li>
+                    <li><a class="nav-link" href="{% url 'borrow_requests' %}"><i class="fas fa-tasks"></i> Manage Borrow Requests</a></li>
+                    <li><a class="nav-link" href="{% url 'lost_report' %}"><i class="fas fa-book-dead"></i> Report a Lost Book</a></li>
+                    <li><a class="nav-link" href="{% url 'removal_report' %}"><i class="fas fa-trash-alt"></i> Remove a Book from Inventory</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>Inventory</h2>
+        <div class="sidebar-card" style="background-color:var(--medium-blue)">
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><a class="nav-link" href="{% url 'new_book' %}"><i class="fas fa-book"></i> Register a New Book</a></li>
+                    <li><a class="nav-link" href="{% url 'book_list' %}"><i class="fas fa-list"></i> List of Books</a></li>
+                    <li><a class="nav-link" href="{% url 'lost_report' %}"><i class="fas fa-book-dead"></i> Report a Lost Book</a></li>
+                    <li><a class="nav-link" href="{% url 'removal_report' %}"><i class="fas fa-trash-alt"></i> Remove a Book from Inventory</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>Report Generations</h2>
+        <div class="sidebar-card" style="background-color:var(--medium-blue)">
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><a class="nav-link" href="{% url 'borrow_report' %}"><i class="fas fa-chart-bar"></i> Monthly Book Borrowing Statistics</a></li>
+                    <li><a class="nav-link" href="{% url 'overdue_books_report' %}"><i class="fas fa-calendar-times"></i> Overdue Books Report</a></li>
+                    <li><a class="nav-link" href="{% url 'fines_report' %}"><i class="fas fa-dollar-sign"></i> Readers Owing Fines Report</a></li>
+                </ul>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="search-bar d-flex align-items-center">
+            <input type="text" class="form-control search-input" id="search-input" placeholder="Search for books, journal articles and more..">
+            <button class="btn search-button" id="search-button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <div class="tabs mt-4">
+            <fluent-button class="tab active" id="recommended-tab">Recommended</fluent-button>
+            <fluent-button class="tab" id="recently-read-tab">Recently Read</fluent-button>
+        </div>
+        <div class="index-books-grid mt-4" id="recommended-books">
+            {% for book in book_list %}
+            <div class="index-book-card" data-book-id="{{ book.id }}">
+                <a href="{% url 'book_detail' book.id %}">
+                    <img src="{{ book.thumbnail }}" alt="Thumbnail" class="img-fluid book-thumbnail">
+                    <p class="index-book-category">{{ book.category }}</p>
+                    <h4 class="index-book-title">{{ book.title }}</h4>
+                    <p class="index-book-author">{{ book.author }}</p>
+                </a>
+                {% if book in favorite_books %}
+                    <i class="fas fa-heart heart-icon" data-favorite="true"></i>
+                {% else %}
+                    <i class="far fa-heart heart-icon" data-favorite="false"></i>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="index-books-grid mt-4 d-none" id="recently-read-books">
+            {% for borrow in recently_read_books %}
+            <div class="index-book-card" data-book-id="{{ borrow.book.id }}">
+                <a href="{% url 'book_detail' borrow.book.id %}">
+                    <img src="{{ borrow.book.thumbnail }}" alt="Thumbnail" class="img-fluid book-thumbnail">
+                    <p class="index-book-category">{{ borrow.book.category }}</p>
+                    <h4 class="index-book-title">{{ borrow.book.title }}</h4>
+                    <p class="index-book-author">{{ borrow.book.author }}</p>
+                </a>
+                {% if borrow.book in favorite_books %}
+                    <i class="fas fa-heart heart-icon" data-favorite="true"></i>
+                {% else %}
+                    <i class="far fa-heart heart-icon" data-favorite="false"></i>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <script>
+        document.getElementById('search-button').addEventListener('click', function() {
+            const query = document.getElementById('search-input').value;
+            fetch(`/books/query/?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    const booksGrid = document.getElementById('recommended-books');
+                    booksGrid.innerHTML = '';
+                    data.forEach(book => {
+                        const bookCard = document.createElement('div');
+                        bookCard.className = 'index-book-card';
+                        bookCard.dataset.bookId = book.id;
+                        bookCard.innerHTML = `
+                            <a href="/book/${book.id}/">
+                                <img src="${book.thumbnail}" alt="Thumbnail" class="img-fluid book-thumbnail">
+                                <p class="index-book-category">${book.categories}</p>
+                                <h4 class="index-book-title">${book.title}</h4>
+                                <p class="index-book-author">${book.author}</p>
+                            </a>
+                            ${book.is_favorite ? '<i class="fas fa-heart heart-icon" data-favorite="true"></i>' : '<i class="far fa-heart heart-icon" data-favorite="false"></i>'}
+                        `;
+                        booksGrid.appendChild(bookCard);
+                    });
+                })
+                .catch(error => console.error('Error fetching search results:', error));
+        });
+
+        document.querySelectorAll('.heart-icon').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const bookId = this.closest('.index-book-card').dataset.bookId;
+                const isFavorite = this.dataset.favorite === 'true';
+                const url = isFavorite ? '{% url "remove_favorite" %}' : '{% url "add_favorite" %}';
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ book_id: bookId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.classList.toggle('fas', !isFavorite);
+                        this.classList.toggle('far', isFavorite);
+                        this.dataset.favorite = !isFavorite;
+                    } else {
+                        console.error('Error updating favorite status:', data.error);
+                    }
+                })
+                .catch(error => console.error('Error updating favorite status:', error));
+            });
+        });
+
+        document.getElementById('recommended-tab').addEventListener('click', function() {
+            document.getElementById('recommended-books').classList.remove('d-none');
+            document.getElementById('recently-read-books').classList.add('d-none');
+            this.classList.add('active');
+            document.getElementById('recently-read-tab').classList.remove('active');
+        });
+
+        document.getElementById('recently-read-tab').addEventListener('click', function() {
+            document.getElementById('recently-read-books').classList.remove('d-none');
+            document.getElementById('recommended-books').classList.add('d-none');
+            this.classList.add('active');
+            document.getElementById('recommended-tab').classList.remove('active');
+        });
+        </script>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Digital Library{% endblock %}</title>
+    {% load static %}
+    {% load compress %}
+    {% compress css %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% endcompress %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/@fluentui/web-components@1.0.0/dist/fluent-ui.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+    <script src="https://kit.fontawesome.com/bc995b73aa.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
+
+    {% block extra_head %}
+    {% endblock %}
+    {% compress css %}
+    <style>
+        :root {
+            --navy-blue: #0D1B2A;
+            --dark-blue: #1B263B;
+            --medium-blue: #415A77;
+            --light-blue: #778DA9;
+            --light-gray: #E0E1DD;
+            --card-text: #E0E1DD; /* Light gray text */
+        }
+
+        body, html {
+            font-family: 'Oswald', sans-serif !important;
+            background-color: var(--light-gray) !important; /* Use light-gray from palette */
+            color: var(--dark-blue) !important; /* Use dark-blue from palette */
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            padding: 20px;
+            flex: 1 0 auto;
+        }
+
+        .navbar {
+            background-color: var(--navy-blue) !important; /* Dark navy blue for navbar */
+            color: var(--light-gray) !important; /* Light gray text */
+        }
+
+        .navbar a {
+            color: var(--light-gray) !important; /* Light gray text */
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            background-color: var(--dark-blue) !important; /* Dark blue for hover */
+        }
+
+        .content {
+            flex: 1;
+        }
+
+        .footer {
+            background-color: var(--navy-blue)!important;
+            color: var(--light-gray);
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        #menu-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: var(--light-blue);
+            transition: left 0.3s ease;
+            z-index: 999;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        #sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-card {
+            background: var(--medium-blue);
+            color: var(--card-text);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        .sidebar-card .nav-link {
+            color: var(--card-text);
+            font-size: 1.2em;
+            margin: 10px 0;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-card .nav-link i {
+            margin-right: 10px;
+        }
+
+        .dropdown-menu {
+            background: var(--dark-blue);
+        }
+        .dropdown-menu a:hover {
+            background-color: var(--light-blue);
+        }
+
+    </style>
+    {% endcompress %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <button id="menu-button" class="navbar-brand">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="{% url 'index' %}">{% if user.is_staff %}Library Management System{% else %}Minh Tam Library{% endif %}</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <form class="form-inline my-2 my-lg-0 ml-auto" method="get" action="{% url 'search_books' %}">
+                    <div class="input-group">
+                        <input class="form-control" type="search" placeholder="Search for books..." aria-label="Search" name="q">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-light" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <ul class="navbar-nav ml-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a href="{% url 'notification_list' %}" class="nav-link notification-icon">
+                                {% if user.notifications.unread_count %}
+                                    <img src="{% static 'images/notification_active.png' %}" alt="Active Notifications" style="width: 30px; height: 30px;">
+                                {% else %}
+                                    <img src="{% static 'images/notification.png' %}" alt="No Notifications" style="width: 30px; height: 30px;">
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {% if user.profile_picture %}
+                                    <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded-circle" style="width: 30px; height: 30px;">
+                                {% else %}
+                                    <img src="{% static 'images/default_profile_picture.png' %}" alt="Default Profile Picture" class="img-fluid rounded-circle" style="width: 30px; height: 30px;">
+                                {% endif %}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="accountDropdown" >
+                                <a class="dropdown-item" href="{% url 'account_view' %}">Account Details</a>
+                                <a class="dropdown-item" href="#" id="logout-link">Logout</a>
+                                <form id="logout-form" method="post" action="{% url 'logout' %}" style="display: none;">
+                                    {% csrf_token %}
+                                </form>
+                            </div>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="{% url 'staff_login' %}" class="btn btn-outline-light">Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div id="sidebar">
+        <div class="sidebar-card">
+            <a href="{% url 'index' %}" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            <a href="{% url 'search_books' %}" class="nav-link"><i class="fas fa-search"></i> Search</a>
+        </div>
+        {% if user.is_staff %}
+        <div class="sidebar-card">
+            <h4>Library Management</h4>
+            <a href="{% url 'book_list' %}" class="nav-link"><i class="fas fa-book"></i> Books</a>
+            <a href="{% url 'reader_list' %}" class="nav-link"><i class="fas fa-users"></i> Readers</a>
+            <a href="{% url 'borrow_book' %}" class="nav-link"><i class="fas fa-book-reader"></i> Borrowed Books</a>
+            <a href="{% url 'lost_report' %}" class="nav-link"><i class="fas fa-exclamation-triangle"></i> Lost Books</a>
+            <a href="{% url 'new_book' %}" class="nav-link"><i class="fas fa-plus"></i> Add New Book</a>
+        </div>
+        {% else %}
+        <div class="sidebar-card">
+            <h4><a href="{% url 'personal_lists' %}" style="text-decoration:none; color: #E0E1DD">Your Library</a></h4>
+            <a href="{% url 'lists_details' slug='favorites' %}" class="nav-link"><i class="fas fa-heart"></i> Favorites</a>
+            <a href="{% url 'lists_details' slug='read-later' %}" class="nav-link"><i class="fas fa-clock"></i> Read Later</a>
+            <a href="{% url 'lists_details' slug='read' %}" class="nav-link"><i class="fas fa-book-open"></i> Read</a>
+            {% for list in book_lists %}
+            <a href="{% url 'lists_details' slug=list.slug %}" class="nav-link"><i class="fas fa-list"></i> {{ list.name }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}s
+
+    </div>
+    <div class="content">
+        <div class="container mt-4">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+    <footer class="footer bg-primary text-white text-center py-3 mt-auto">
+        <p>&copy; 2024 My Library</p>
+    </footer>
+    {% compress js %}
+    <script>
+        document.getElementById('menu-button').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        document.getElementById('logout-link').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.getElementById('logout-form').submit();
+        });
+    </script>
+    {% endcompress %}
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

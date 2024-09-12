@@ -1,0 +1,47 @@
+stages:
+  - setup
+  - test
+  - build
+  - deploy
+
+variables:
+  MYSQL_DATABASE: $DATABASE_NAME
+  MYSQL_USER: $DATABASE_USER
+  MYSQL_PASSWORD: $DATABASE_PASSWORD
+  MYSQL_ROOT_PASSWORD: $DATABASE_ROOT_PASSWORD
+  DATABASE_URL: $DATABASE_URL
+  CELERY_BROKER_URL: $CELERY_BROKER_URL
+  CELERY_RESULT_BACKEND: django-db
+
+services:
+  - name: mysql:8.0
+    alias: mysql
+  - name: rabbitmq:3-management
+    alias: rabbitmq
+
+before_script:
+  - python -V
+  - pip install -r requirements.txt
+  - if [ -f .env ]; then export $(cat .env | grep -v ^# | xargs); fi  # Load environment variables from .env file
+  - export DATABASE_URL=mysql://admin:Kn@22112005@mysql:3306/digital_library_data_2  # Ensure DATABASE_URL is set
+  - apt-get update && apt-get install -y default-mysql-client
+  - mysql --host=mysql --user=root --password=$MYSQL_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+
+test:
+  stage: test
+  script:
+    - python manage.py wait_for_db  # Custom management command to wait for the database to be ready
+    - python manage.py migrate
+    - python manage.py test
+
+build:
+  stage: build
+  script:
+    - python manage.py collectstatic --noinput
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying to production..."
+  only:
+    - main

@@ -1,0 +1,28 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<fluent-card class="mt-4 p-4">
+    <h1>Overdue Books Report</h1>
+    <p>Date: {{ date }}</p>
+    <table class="table table-bordered table-hover mt-4">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>Book Title</th>
+                <th>Borrow Date</th>
+                <th>Days Overdue</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in overdue_books %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ book.book_title }}</td>
+                <td>{{ book.borrow_date }}</td>
+                <td>{{ book.days_overdue }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</fluent-card>
+{% endblock %}

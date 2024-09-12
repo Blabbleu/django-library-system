@@ -1,0 +1,57 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}
+Register New Reader
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center mt-5">
+    <fluent-card class="p-4" style="width: 600px;">
+        <h2 class="mb-4">Register as a Reader</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+            </div>
+            <div class="form-group">
+                {{ form.password1.label_tag }}
+                {{ form.password1 }}
+            </div>
+            <div class="form-group">
+                {{ form.password2.label_tag }}
+                {{ form.password2 }}
+            </div>
+            <div class="form-group">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+            </div>
+            <div class="form-group">
+                {{ form.first_name.label_tag }}
+                {{ form.first_name }}
+            </div>
+            <div class="form-group">
+                {{ form.last_name.label_tag }}
+                {{ form.last_name }}
+            </div>
+            <div class="form-group">
+                {{ form.date_of_birth.label_tag }}
+                {{ form.date_of_birth }}
+            </div>
+            <div class="form-group">
+                {{ form.address.label_tag }}
+                {{ form.address }}
+            </div>
+            <div class="form-group">
+                {{ form.phone_number.label_tag }}
+                {{ form.phone_number }}
+            </div>
+            <div class="form-group">
+                {{ form.reader_type.label_tag }}
+                {{ form.reader_type }}
+            </div>
+            <button type="submit" class="fluent-button w-100">Register</button>
+        </form>
+    </fluent-card>
+</div>
+{% endblock %}

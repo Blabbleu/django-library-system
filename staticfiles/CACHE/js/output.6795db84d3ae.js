@@ -1,0 +1,1 @@
+document.getElementById('menu-button').addEventListener('click',function(){document.getElementById('sidebar').classList.toggle('open');});document.getElementById('logout-link').addEventListener('click',function(event){event.preventDefault();document.getElementById('logout-form').submit();});;

@@ -1,0 +1,399 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% load compress %}
+{% block title %}Personal Library{% endblock %}
+
+{% block header %}
+    <h1>Personal Library</h1>
+{% endblock %}
+
+{% block content %}
+{% compress css %}
+<style>
+    .list-card {
+        background: var(--light-gray);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 1.6px 3.6px rgba(0, 0, 0, 0.132), 0 0.3px 0.9px rgba(0, 0, 0, 0.108);
+        justify-content: space-between;
+    }
+
+    .book-card {
+        position: relative;
+        display: inline-block;
+        width: 18%;
+        margin: 5px;
+        text-align: center;
+        background: var(--light-blue);
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 1.6px 3.6px rgba(0, 0, 0, 0.132), 0 0.3px 0.9px rgba(0, 0, 0, 0.108);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .book-card img {
+        width: 100%;
+        height: auto;
+        border-radius: 5px;
+    }
+
+    .book-card p {
+        font-size: 1.2em;
+        margin: 5px 0;
+    }
+
+    .book-card a {
+        text-decoration: none;
+        color: var(--navy-blue);
+    }
+
+    .book-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        text-decoration: none;
+    }
+
+    .remove-icon {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        font-size: 1.8em;
+        color: var(--slate-blue);
+        cursor: pointer;
+        background: var(--light-blue);
+        border-radius: 5px; /* Make the border radius large enough to create a pill shape */
+        padding: 5px;
+    }
+
+    .remove-icon:hover {
+        color: var(--dark-blue);
+
+    }
+
+    .action-icons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .action-icons i {
+        cursor: pointer;
+        font-size: 1.5em;
+        color: var(--slate-blue);
+        transition: color 0.3s ease;
+        margin-left: 10px;
+        border-radius: 50px; /* Make the border radius large enough to create a pill shape */
+        background: var(--light-blue);
+        padding: 3px 15px; /* Adjust padding to create the desired pill shape */
+    }
+
+    .action-icons i:hover {
+        color: var(--dark-blue);
+    }
+
+    .modal-content {
+        border-radius: 8px;
+        box-shadow: 0 1.6px 3.6px rgba(0, 0, 0, 0.132), 0 0.3px 0.9px rgba(0, 0, 0, 0.108);
+    }
+
+    .modal-header, .modal-footer {
+        background: var(--light-gray);
+        border-bottom: none;
+        border-top: none;
+    }
+
+    .modal-header .close {
+        font-size: 1.5em;
+    }
+
+    .modal-title {
+        font-size: 1.2em;
+    }
+
+    .modal-body {
+        background: var(--light-gray);
+    }
+
+    .book-cards-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .search-book-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--light-blue);
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 10px;
+        box-shadow: 0 1.6px 3.6px rgba(0, 0, 0, 0.132), 0 0.3px 0.9px rgba(0, 0, 0, 0.108);
+    }
+
+    .search-book-card img {
+        width: 50px;
+        height: auto;
+        border-radius: 5px;
+        margin-right: 10px;
+    }
+
+    .search-book-card div {
+        flex-grow: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .add-book-btn {
+        background: var(--slate-blue);
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .add-book-btn:hover {
+        background: var(--dark-blue);
+    }
+
+    .selected {
+        border: 2px solid var(--steel-blue);
+    }
+
+    .book-checkbox {
+        margin-left: 10px;
+    }
+</style>
+{% endcompress %}
+<h1>Your Library</h1>
+
+<h2>Ready-made Lists</h2>
+{% for list in ready_made_lists %}
+    <div class="list-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">{{ list.name }}</h3>
+            <div class="action-icons">
+                <i class="fas fa-plus" onclick="openBookSelectionModal('{{ list.slug }}')"></i>
+                <i class="fas fa-arrow-right" onclick="window.location.href='{% url 'lists_details' list.slug %}'"></i>
+            </div>
+        </div>
+        <div class="book-cards-container">
+            {% for book in list.books.all|slice:":5" %}
+                <div class="book-card">
+                    <i class="fas fa-minus remove-icon" onclick="openRemoveBookModal('{{ list.slug }}', '{{ book.id }}')"></i>
+                    <a href="{% url 'book_detail' book.id %}">
+                        <img src="{{ book.thumbnail }}" alt="{{ book.title }}">
+                        <p>{{ book.title }}</p>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}
+
+<h2>Custom Lists</h2>
+{% for list in custom_lists %}
+    <div class="list-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">{{ list.name }}</h3>
+            <div class="action-icons">
+                <i class="fas fa-plus" onclick="openBookSelectionModal('{{ list.slug }}')"></i>
+                <i class="fas fa-arrow-right" onclick="window.location.href='{% url 'lists_details' list.slug %}'"></i>
+            </div>
+        </div>
+        <div class="book-cards-container">
+            {% for book in list.books.all|slice:":5" %}
+                <div class="book-card">
+                    <i class="fas fa-minus remove-icon" onclick="openRemoveBookModal('{{ list.slug }}', '{{ book.id }}')"></i>
+                    <a href="{% url 'book_detail' book.id %}">
+                        <img src="{{ book.thumbnail }}" alt="{{ book.title }}">
+                        <p>{{ book.title }}</p>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}
+
+<div class="list-card">
+    <h2>Create New List</h2>
+    <button type="button" class="btn btn-primary" onclick="$('#createListModal').modal('show')">Create New List</button>
+</div>
+
+<!-- Modal for book selection -->
+<div class="modal fade" id="bookSelectionModal" tabindex="-1" role="dialog" aria-labelledby="bookSelectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookSelectionModalLabel">Select a Book</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="bookSearchInput" class="form-control" placeholder="Search for books...">
+                <div id="bookSearchResults" class="mt-3">
+                    <!-- Search results will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectBookButton">Select Books</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for creating new list -->
+<div class="modal fade" id="createListModal" tabindex="-1" role="dialog" aria-labelledby="createListModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createListModalLabel">Create New List</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createListForm" method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for confirming book removal -->
+<div class="modal fade" id="removeBookModal" tabindex="-1" role="dialog" aria-labelledby="removeBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="removeBookModalLabel">Confirm Book Removal</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to remove this book from the list?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmRemoveBookButton">Remove</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    let currentListSlug = '';
+    let currentBookId = '';
+
+    function openBookSelectionModal(slug) {
+        currentListSlug = slug;
+        $('#bookSelectionModal').modal('show');
+    }
+
+    function openRemoveBookModal(slug, bookId) {
+        currentListSlug = slug;
+        currentBookId = bookId;
+        $('#removeBookModal').modal('show');
+    }
+
+    document.getElementById('bookSearchInput').addEventListener('input', function () {
+        const query = this.value;
+        fetch(`/books/query/?q=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                const searchResults = document.getElementById('bookSearchResults');
+                searchResults.innerHTML = '';
+                data.forEach(book => {
+                    const bookCard = document.createElement('div');
+                    bookCard.className = 'search-book-card';
+                    bookCard.dataset.bookId = book.id;
+                    bookCard.innerHTML = `
+                        <img src="${book.thumbnail}" alt="Thumbnail">
+                        <div>
+                            <p>${book.title} by ${book.author}</p>
+                            <input type="checkbox" class="book-checkbox" data-book-id="${book.id}">
+                        </div>
+                    `;
+                    searchResults.appendChild(bookCard);
+                });
+            })
+            .catch(error => console.error('Error fetching search results:', error));
+    });
+
+    document.getElementById('selectBookButton').addEventListener('click', function () {
+        const selectedBooks = document.querySelectorAll('.book-checkbox:checked');
+        const bookIds = Array.from(selectedBooks).map(book => book.dataset.bookId);
+        if (bookIds.length > 0) {
+            const promises = bookIds.map(bookId => {
+                return fetch(`/lists/${currentListSlug}/add/${bookId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                }).then(response => response.json());
+            });
+
+            Promise.all(promises)
+                .then(results => {
+                    if (results.every(result => result.success)) {
+                        location.reload();
+                    } else {
+                        alert('Error adding some books to the list.');
+                    }
+                });
+        } else {
+            alert('Please select at least one book.');
+        }
+    });
+
+    document.getElementById('createListForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch('{% url "personal_lists" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error creating list.');
+            }
+        });
+    });
+
+    document.getElementById('confirmRemoveBookButton').addEventListener('click', function () {
+        fetch(`/lists/${currentListSlug}/remove/${currentBookId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error removing the book from the list.');
+            }
+        });
+    });
+</script>
+
+{% endblock %}

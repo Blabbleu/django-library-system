@@ -1,0 +1,366 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% load compress %}
+{% block title %}
+{{ list_name }} - Digital Library
+{% endblock %}
+
+{% block content %}
+{% compress css %}
+<style>
+    .nav-link:hover {
+        color: var(--steel-blue);
+        text-decoration: none;
+    }
+
+    .index-book-card {
+        position: relative;
+        background: var(--light-blue) !important;
+        border-radius: 10px;
+        padding: 16px;
+        box-shadow: 0 1.6px 3.6px rgba(0, 0, 0, 0.132), 0 0.3px 0.9px rgba(0, 0, 0, 0.108);
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        width: 23%; /* Adjust width for 4-grid layout */
+        margin: 1%;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .index-book-card img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+
+    .index-book-card p {
+        font-size: 1.2em;
+        margin: 5px 0;
+    }
+
+    .index-book-card a {
+        text-decoration: none;
+        color: var(--navy-blue);
+    }
+
+    .index-book-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        text-decoration: none;
+    }
+
+    .remove-icon {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 1.5em;
+        color: var(--slate-blue);
+        cursor: pointer;
+        background: var(--light-blue);
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    .remove-icon:hover {
+        color: var(--dark-blue);
+    }
+
+    .book-cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .modal-content {
+        border-radius: 8px;
+        box-shadow: 0 1.6px 3.6px rgba(0, 0, 0, 0.132), 0 0.3px 0.9px rgba(0, 0, 0, 0.108);
+    }
+
+    .modal-header, .modal-footer {
+        background: var(--light-gray);
+        border-bottom: none;
+        border-top: none;
+    }
+
+    .modal-header .close {
+        font-size: 1.5em;
+    }
+
+    .modal-title {
+        font-size: 1.2em;
+    }
+
+    .modal-body {
+        background: var(--light-gray);
+    }
+
+    .search-book-card {
+        display: flex;
+        align-items: center;
+        background-color: var(--light-gray);
+        height: 200px;
+        padding: 0px;
+        margin: 10px 0;
+        border-radius: 10px;
+        box-shadow: 0 1.6px 3.6px rgba(0, 0, 0, 0.132), 0 0.3px 0.9px rgba(0, 0, 0, 0.108);
+    }
+
+    .search-book-card img {
+        width: auto;
+        height: 100%;
+        margin-right: 10px;
+    }
+
+    .add-book-btn {
+        margin-top: 20px;
+        background-color: var(--steel-blue);
+        color: var(--light-gray);
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .add-book-btn:hover {
+        background-color: var(--navy-blue);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
+    .modal fade {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 50%;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .search-results {
+        margin-top: 20px;
+    }
+
+    .search-results .search-book-card {
+        display: flex;
+        align-items: center;
+        background-color: var(--light-gray);
+        height: 200px;
+        padding: 0px;
+        margin: 10px 0;
+        border-radius: 10px;
+        box-shadow: 0 1.6px 3.6px rgba(0, 0, 0, 0.132), 0 0.3px 0.9px rgba(0, 0, 0, 0.108);
+    }
+
+    .search-results .search-book-card img {
+        width: auto;
+        height: 100%;
+        margin-right: 10px;
+    }
+</style>
+{% endcompress %}
+
+
+
+<div class="container mt-4">
+    <h1>{{ list_name }}</h1>
+    <div class="book-cards-container mt-4">
+        {% for book in books %}
+        <div class="index-book-card" data-book-id="{{ book.id }}">
+            <a href="{% url 'book_detail' book.id %}">
+                <img src="{{ book.thumbnail }}" alt="Thumbnail" class="img-fluid book-thumbnail">
+                <p class="index-book-category">{{ book.categories }}</p>
+                <h4 class="index-book-title">{{ book.title }}</h4>
+                <p class="index-book-author">{{ book.author }}</p>
+            </a>
+            <i class="fas fa-minus remove-icon" onclick="openRemoveBookModal('{{ book_list.slug }}', '{{ book.id }}')"></i>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button class="add-book-btn" id="addBookBtn">Add Book</button>
+
+    <!-- The Modal -->
+    <div id="addBookModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Search Books to Add</h2>
+            <input type="text" id="bookSearchInput" placeholder="Search for books...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- Modal for confirming book removal -->
+    <div class="modal fade" id="removeBookModal" tabindex="-1" role="dialog" aria-labelledby="removeBookModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeBookModalLabel">Confirm Book Removal</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to remove this book from the list?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmRemoveBookButton">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+    <script>
+        let currentListSlug = '';
+        let currentBookId = '';
+
+        function openRemoveBookModal(slug, bookId) {
+            currentListSlug = slug;
+            currentBookId = bookId;
+            console.log('currentListSlug:', currentListSlug); // Debugging statement
+            console.log('currentBookId:', currentBookId);
+            $('#removeBookModal').modal('show');
+        }
+
+        // Get the modal
+        var modal = document.getElementById("addBookModal");
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("addBookBtn");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on the button, open the modal
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Search books to add
+        document.getElementById('bookSearchInput').addEventListener('input', function() {
+            const query = this.value;
+            fetch(`/books/query/?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    const searchResults = document.getElementById('searchResults');
+                    searchResults.innerHTML = '';
+                    data.forEach(book => {
+                        const bookCard = document.createElement('div');
+                        bookCard.className = 'search-book-card';
+                        bookCard.dataset.bookId = book.id;
+                        bookCard.innerHTML = `
+                            <img src="${book.thumbnail}" alt="Thumbnail">
+                            <div>
+                                <p>${book.title} by ${book.author}</p>
+                                <button class="add-book-btn" data-book-id="${book.id}">Add</button>
+                            </div>
+                        `;
+                        searchResults.appendChild(bookCard);
+                    });
+                })
+                .catch(error => console.error('Error fetching search results:', error));
+        });
+
+        // Add book to list
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('add-book-btn')) {
+                const bookId = event.target.dataset.bookId;
+                const url = '{% url "add_book_to_list" slug=book_list.slug book_id="book_id_placeholder" %}';
+
+                fetch(url.replace('book_id_placeholder', bookId), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ book_id: bookId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Book added successfully!');
+                        modal.style.display = "none";
+                        location.reload();
+                    } else {
+                        console.error('Error adding book:', data.error);
+                    }
+                })
+                .catch(error => console.error('Error adding book:', error));
+            }
+        });
+
+        document.getElementById('confirmRemoveBookButton').addEventListener('click', function () {
+            fetch(`/lists/${currentListSlug}/remove/${currentBookId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ book_id: currentBookId }) // Include the body with the book_id
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    $('#removeBookModal').modal('hide'); // Hide the modal on success
+                    location.reload();
+                } else {
+                    alert('Error removing the book from the list.');
+                }
+            });
+        });
+    </script>
+{% endblock %}

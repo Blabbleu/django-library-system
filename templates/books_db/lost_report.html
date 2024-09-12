@@ -1,0 +1,59 @@
+{% extends "base_generic.html" %}
+{% load static %}
+{% load compress %}
+{% block title %}Lost Book Report{% endblock %}
+{% block header %}Lost Book Report{% endblock %}
+
+
+{% block content %}
+{% compress css %}
+<style>
+    .table th, .table td {
+        vertical-align: middle;
+    }
+    .table th {
+        background-color: #343a40;
+        color: white;
+    }
+</style>
+{% endcompress %}
+
+<fluent-card class="mt-4 p-4">
+    <h1 class="mb-4">Report Lost Book</h1>
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-danger">Report Lost</button>
+    </form>
+</fluent-card>
+
+<fluent-card class="mt-4 p-4">
+    <h2 class="mb-4">Lost Reports</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Book ID</th>
+                    <th>Title</th>
+                    <th>Reporter</th>
+                    <th>Report Date</th>
+                    <th>Receiver</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in lost_reports %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ report.book.id }}</td>
+                    <td>{{ report.book.title }}</td>
+                    <td>{{ report.reporter.user.username }}</td>
+                    <td>{{ report.report_date }}</td>
+                    <td>{{ report.receiver.username }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</fluent-card>
+{% endblock %}
